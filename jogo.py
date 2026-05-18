@@ -1,18 +1,41 @@
 import pygame
+from player import player
 
 pygame.init()
 
-window = pygame.display.set_mode((500, 400))
-pygame.display.set_caption('Hello World!')
+LARGURA = 800
+ALTURA = 600
 
-game = True
+TELA = pygame.display.set_mode((LARGURA, ALTURA))
 
-while game:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            game = False
+pygame.display.set_caption("Pac-Man")
 
-    window.fill((255, 255, 255))
+clock = pygame.time.Clock()
+
+
+player = player(LARGURA, ALTURA)
+
+
+rodando = True
+
+while rodando:
+
+    clock.tick(60)
+
+    # Eventos
+    for evento in pygame.event.get():
+
+        if evento.type == pygame.QUIT:
+            rodando = False
+
+ 
+    player.mover(LARGURA, ALTURA)
+
+
+    TELA.fill((0, 0, 0))
+
+    player.desenhar(TELA)
+
     pygame.display.update()
 
 pygame.quit()
