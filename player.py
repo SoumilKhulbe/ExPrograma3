@@ -26,7 +26,8 @@ class player:
 
         self.sprites_projetil = {
                 "ak": pygame.image.load('assets/guns/p_ak.png'),
-                "bazuca": pygame.image.load('assets/guns/AmoB1.png')
+                "bazuca": pygame.image.load('assets/guns/AmoB1.png'),
+                "sniper": pygame.image.load('assets/guns/p_sniper.png')
         }
         self.rect = pygame.Rect(self.x, self.y, self.tamanho, self.tamanho)
 
@@ -122,4 +123,4 @@ class player:
             elif self.direcao == 'baixo':
                 arma_sprite = pygame.transform.rotate(arma_sprite, -90)
                 tela.blit(arma_sprite, (self.x-8, self.y + 16))
-            
+
