@@ -22,10 +22,14 @@ class player:
             "ak": pygame.image.load('assets/guns/Assaut-rifle-1.png'),
             "bazuca": pygame.image.load('assets/guns/RPG-reisized.png')
             }
+        
 
+        self.sprites_projetil = {
+                "ak": pygame.image.load('assets/guns/p_ak.png'),
+                "bazuca": pygame.image.load('assets/guns/AmoB1.png')
+        }
         self.rect = pygame.Rect(self.x, self.y, self.tamanho, self.tamanho)
 
-        #aqui a gente coloca os sprites
         self.sprites = [ 
                 pygame.image.load('assets/PacManAssets-PacMan_0_0.png'),
                 pygame.image.load('assets/PacManAssets-PacMan_0_1.png'),
