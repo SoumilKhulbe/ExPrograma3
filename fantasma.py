@@ -18,8 +18,8 @@ class Fantasma:
         self.rect = pygame.Rect(
             self.x,
             self.y,
-            self.tamanho,
-            self.tamanho
+            16,
+            16
         )
 
         # sprites

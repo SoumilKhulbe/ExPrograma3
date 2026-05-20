@@ -40,7 +40,7 @@ class player:
         self.projeteis = []
 
 
-        self.rect = pygame.Rect(self.x, self.y, self.tamanho, self.tamanho)
+        self.rect = pygame.Rect(self.x, self.y, 16, 16)
 
         self.sprites = [ 
                 pygame.image.load('assets/PacManAssets-PacMan_0_0.png'),
