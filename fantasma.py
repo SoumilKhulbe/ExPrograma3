@@ -29,9 +29,26 @@ class Fantasma:
             "inky": [pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_0.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_1.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_2.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_3.png")],
             "clyde": [pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_0.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_1.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_2.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_3.png")]
         }
+        self.spawn_x = x
+        self.spawn_y = y
+
+        self.vivo = True
+
+        self.tempo_morte = 0
 
     def mover(self, jogador, largura, altura):
+        if self.vivo == False:
 
+            agora = pygame.time.get_ticks()
+
+            if agora - self.tempo_morte >= 3000:
+
+                self.vivo = True
+
+                self.x = self.spawn_x
+                self.y = self.spawn_y
+
+            return
         if self.tipo == "blinky":
 
             if jogador.x > self.x:
@@ -126,9 +143,15 @@ class Fantasma:
 
         self.rect.x = self.x
         self.rect.y = self.y
+    def morrer(self):
+
+        self.vivo = False
+
+        self.tempo_morte = pygame.time.get_ticks()
 
     def desenhar(self, tela):
-
+        if self.vivo == False:
+            return
         self.contador_animacao += 1
 
         if self.contador_animacao >= 10:

@@ -1,5 +1,5 @@
 import random
-
+from projetil import Projetil
 import pygame
 class player:
     def __init__(self, largura, altura):
@@ -22,13 +22,24 @@ class player:
             "ak": pygame.image.load('assets/guns/Assaut-rifle-1.png'),
             "bazuca": pygame.image.load('assets/guns/RPG-reisized.png')
             }
-        
-
         self.sprites_projetil = {
-                "ak": pygame.image.load('assets/guns/p_ak.png'),
-                "bazuca": pygame.image.load('assets/guns/AmoB1.png'),
-                "sniper": pygame.image.load('assets/guns/p_sniper.png')
-        }
+
+        "sniper": pygame.image.load(
+            'assets/guns/p_sniper.png'
+        ),
+
+        "ak": pygame.image.load(
+            'assets/guns/p_ak.png'
+        ),
+
+        "bazuca": pygame.image.load(
+            'assets/guns/AmoB1.png'
+        )
+    }
+        
+        self.projeteis = []
+
+
         self.rect = pygame.Rect(self.x, self.y, self.tamanho, self.tamanho)
 
         self.sprites = [ 
@@ -91,8 +102,25 @@ class player:
 
         
     def atirar(self):
+
         if self.arma is not None:
-            print(f"Acabou a munição da {self.arma}...")
+
+            novo_projetil = Projetil(
+
+                self.x,
+                self.y,
+
+                self.direcao,
+
+                self.arma,
+
+                self.sprites_projetil[self.arma]
+            )
+
+            self.projeteis.append(novo_projetil)
+
+            print(f"Acabou a munição da {self.arma}")
+
             self.arma = None
 
     def desenhar(self, tela):
@@ -104,6 +132,9 @@ class player:
             sprite = pygame.transform.rotate(sprite, 90)
         elif self.direcao == 'baixo':
             sprite = pygame.transform.rotate(sprite, -90)
+        
+        for projetil in self.projeteis:
+            projetil.desenhar(tela)
         
         #desenha o sprite do jogador na tela
         tela.blit(sprite, (self.x, self.y))
