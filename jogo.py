@@ -1,5 +1,5 @@
 import pygame
-
+import random
 from player import player
 from fantasma import Fantasma
 from explosao import Explosao
@@ -20,6 +20,14 @@ explosao_sound = pygame.mixer.Sound("assets/som/roblox-explosion-sound_HNC20s9c.
 ak_sound = pygame.mixer.Sound("assets/som/Gun_2.wav")
 pickup_sound = pygame.mixer.Sound("assets/som/Shotgun_Pump.wav")
 pickup_sound.set_volume(0.4)
+death_sounds = [
+    pygame.mixer.Sound("assets/som/lego-yoda-death-sound-effect.mp3"),
+    pygame.mixer.Sound("assets/som/Oswald_Attract.wav"),
+    pygame.mixer.Sound("assets/som/026_abnormality_dead_a_v1.wav"),
+    pygame.mixer.Sound("assets/som/Dead.wav")
+]
+for sound in death_sounds:
+    sound.set_volume(0.6)
 spritesheet_items = pygame.image.load(
     'assets/PacManAssets-Items/PacManAssets-Items_0_0.png'
 ).convert_alpha()
@@ -130,7 +138,8 @@ while rodando:
                 continue
 
             if projetil.rect.colliderect(fantasma.rect):
-
+                death_sound = random.choice(death_sounds)
+                death_sound.play()
                 fantasma.morrer()
 
                 if projetil.arma == "ak":
@@ -166,7 +175,8 @@ while rodando:
             if fantasma.vivo:
 
                 if explosao.rect.colliderect(fantasma.rect):
-
+                    death_sound = random.choice(death_sounds)
+                    death_sound.play()
                     fantasma.morrer()
 
         if explosao.finalizada:
@@ -191,6 +201,7 @@ while rodando:
             fantasma.desenhar(TELA)
 
             if player.rect.colliderect(fantasma.rect):
+
 
                 pygame.quit()
 
