@@ -5,7 +5,7 @@ from fantasma import Fantasma
 from explosao import Explosao
 
 pygame.init()
-
+pygame.mixer.init()
 LARGURA = 800
 ALTURA = 600
 
@@ -16,7 +16,10 @@ pygame.display.set_caption("Pac-Man")
 clock = pygame.time.Clock()
 
 player = player(LARGURA, ALTURA)
-
+explosao_sound = pygame.mixer.Sound("assets/som/roblox-explosion-sound_HNC20s9c.mp3")
+ak_sound = pygame.mixer.Sound("assets/som/Gun_2.wav")
+pickup_sound = pygame.mixer.Sound("assets/som/Shotgun_Pump.wav")
+pickup_sound.set_volume(0.4)
 spritesheet_items = pygame.image.load(
     'assets/PacManAssets-Items/PacManAssets-Items_0_0.png'
 ).convert_alpha()
@@ -99,6 +102,7 @@ while rodando:
 
             super_pontos.remove(super_ponto)
 
+            pickup_sound.play()
             player.pegar_arma()
 
     for projetil in player.projeteis[:]:
@@ -136,6 +140,7 @@ while rodando:
                         player.projeteis.remove(projetil)
 
                 elif projetil.arma == "bazuca":
+                    explosao_sound.play()
 
                     explosoes.append(
 

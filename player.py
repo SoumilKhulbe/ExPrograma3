@@ -1,6 +1,7 @@
 import random
 from projetil import Projetil
 import pygame
+pygame.mixer.init()
 class player:
     def __init__(self, largura, altura):
         self.tamanho = 32
@@ -119,6 +120,11 @@ class player:
 
             self.projeteis.append(novo_projetil)
 
+            if self.arma == "ak":
+                pygame.mixer.Sound("assets/som/Gun_2.wav").play()
+
+            if self.arma == "sniper":
+                pygame.mixer.Sound("assets/som/freesound_community-sniper-rifle-firing-2-39885.mp3").play()
             print(f"Acabou a munição da {self.arma}")
 
             self.arma = None
