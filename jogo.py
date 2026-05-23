@@ -6,8 +6,8 @@ from explosao import Explosao
 
 pygame.init()
 pygame.mixer.init()
-LARGURA = 800
-ALTURA = 600
+LARGURA = 960
+ALTURA = 704
 
 TELA = pygame.display.set_mode((LARGURA, ALTURA))
 

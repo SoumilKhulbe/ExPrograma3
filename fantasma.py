@@ -35,7 +35,24 @@ class Fantasma:
         self.vivo = True
 
         self.tempo_respawn = 0
+        self.direcao_pinky = "horizontal"
 
+        self.tempo_decisao = 0
+        
+        self.modo = "ativo"
+
+        self.tempo_modo = pygame.time.get_ticks()
+
+        self.alvos_descanso = {
+
+            "blinky": (750, 50),
+
+            "pinky": (50, 50),
+
+            "inky": (50, 550),
+
+            "clyde": (750, 550)
+        }
     def mover(self, jogador, largura, altura):
         if self.vivo == False:
 
@@ -49,8 +66,24 @@ class Fantasma:
                 self.y = self.spawn_y
 
             return
-        if self.tipo == "blinky":
+        if self.modo == "descanso":
 
+            alvo_x, alvo_y = self.alvos_descanso[self.tipo]
+
+            if alvo_x > self.x:
+                self.x += self.velocidade
+
+            elif alvo_x < self.x:
+                self.x -= self.velocidade
+
+            if alvo_y > self.y:
+                self.y += self.velocidade
+
+            elif alvo_y < self.y:
+                self.y -= self.velocidade
+
+
+        elif self.tipo == "blinky":
             if jogador.x > self.x:
                 self.x += self.velocidade
 
@@ -81,19 +114,42 @@ class Fantasma:
             elif jogador.direcao == "baixo":
                 alvo_y += 80
 
-            if alvo_x > self.x:
-                self.x += self.velocidade
+            dx = alvo_x - self.x
+            dy = alvo_y - self.y
 
-            elif alvo_x < self.x:
-                self.x -= self.velocidade
+            agora = pygame.time.get_ticks()
 
-            if alvo_y > self.y:
-                self.y += self.velocidade
+            if agora - self.tempo_decisao > 300:
 
-            elif alvo_y < self.y:
-                self.y -= self.velocidade
+                self.tempo_decisao = agora
 
+                if abs(dx) > abs(dy):
 
+                    self.direcao_pinky = "horizontal"
+
+                else:
+
+                    self.direcao_pinky = "vertical"
+
+            if self.direcao_pinky == "horizontal":
+
+                if abs(dx) > 10:
+
+                    if dx > 0:
+                        self.x += self.velocidade
+
+                    else:
+                        self.x -= self.velocidade
+
+            else:
+
+                if abs(dy) > 10:
+
+                    if dy > 0:
+                        self.y += self.velocidade
+
+                    else:
+                        self.y -= self.velocidade
         elif self.tipo == "inky":
 
             self.x += random.randint(-2, 2)
@@ -108,17 +164,20 @@ class Fantasma:
             )
 
             if distancia < 120:
+                self.modo = "descanso"
+                alvo_x, alvo_y = self.alvos_descanso["clyde"]
 
-                if jogador.x > self.x:
-                    self.x -= self.velocidade
-                else:
+                if alvo_x > self.x:
                     self.x += self.velocidade
 
-                if jogador.y > self.y:
-                    self.y -= self.velocidade
-                else:
+                elif alvo_x < self.x:
+                    self.x -= self.velocidade
+
+                if alvo_y > self.y:
                     self.y += self.velocidade
 
+                elif alvo_y < self.y:
+                    self.y -= self.velocidade
             else:
 
                 if jogador.x > self.x:
@@ -126,6 +185,12 @@ class Fantasma:
 
                 elif jogador.x < self.x:
                     self.x -= self.velocidade
+
+                if jogador.y > self.y:
+                    self.y += self.velocidade
+
+                elif jogador.y < self.y:
+                    self.y -= self.velocidade
 
         # LIMITES DA TELA
 
@@ -186,10 +251,31 @@ class Fantasma:
                     )
 
             return
-        self.contador_animacao += 1
+        agora = pygame.time.get_ticks()
 
-        if self.contador_animacao >= 10:
-            self.contador_animacao = 0
+        if self.modo == "ativo":
+
+            troca = 20000
+
+        else:
+
+            troca = 4000
+
+        if agora - self.tempo_modo >= troca:
+
+            self.tempo_modo = agora
+
+            if self.modo == "ativo":
+
+                self.modo = "descanso"
+
+            else:
+
+                self.modo = "ativo"
+                self.contador_animacao += 1
+
+                if self.contador_animacao >= 10:
+                    self.contador_animacao = 0
 
             self.frame += 1
 
