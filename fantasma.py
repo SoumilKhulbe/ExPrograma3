@@ -3,7 +3,7 @@ import random
 import math
 
 class Fantasma:
-    def __init__(self, x, y, tipo):
+    def __init__(self, x, y, tipo, spawn_x, spawn_y):
 
         self.x = x
         self.y = y
@@ -29,12 +29,12 @@ class Fantasma:
             "inky": [pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_0.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_1.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_2.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_3.png")],
             "clyde": [pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_0.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_1.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_2.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_3.png")]
         }
-        self.spawn_x = x
-        self.spawn_y = y
+        self.spawn_x = spawn_x
+        self.spawn_y = spawn_y
 
         self.vivo = True
 
-        self.tempo_morte = 0
+        self.tempo_respawn = 0
 
     def mover(self, jogador, largura, altura):
         if self.vivo == False:
@@ -151,6 +151,40 @@ class Fantasma:
 
     def desenhar(self, tela):
         if self.vivo == False:
+
+            tempo = pygame.time.get_ticks()
+
+            for i in range(25):
+
+                if (tempo // 100 + i) % 2 == 0:
+
+                    pixel_x = self.spawn_x + random.randint(-24, 24)
+
+                    pixel_y = self.spawn_y + random.randint(-24, 24)
+
+                    tamanho = random.randint(2, 5)
+
+                    superficie = pygame.Surface(
+
+                        (tamanho, tamanho),
+
+                        pygame.SRCALPHA
+                    )
+
+                    pygame.draw.rect(
+
+                        superficie,
+
+                        (255, 0, 0, 140),
+
+                        (0, 0, tamanho, tamanho)
+                    )
+
+                    tela.blit(
+                        superficie,
+                        (pixel_x, pixel_y)
+                    )
+
             return
         self.contador_animacao += 1
 

@@ -47,10 +47,10 @@ super_pontos = [
 
 fantasmas = [
 
-    Fantasma(100, 100, "blinky"),
-    Fantasma(200, 100, "pinky"),
-    Fantasma(300, 100, "inky"),
-    Fantasma(400, 100, "clyde")
+    Fantasma(100, 100, "blinky", 100, 100),
+    Fantasma(200, 100, "pinky", 200, 100),
+    Fantasma(300, 100, "inky", 300, 100),
+    Fantasma(400, 100, "clyde", 400, 100)
 
 ]
 
@@ -196,14 +196,12 @@ while rodando:
 
         fantasma.mover(player, LARGURA, ALTURA)
 
+        
+        fantasma.desenhar(TELA)
         if fantasma.vivo:
-
-            fantasma.desenhar(TELA)
-
             if player.rect.colliderect(fantasma.rect):
 
-
-                pygame.quit()
+                rodando = False
 
     for explosao in explosoes:
 
