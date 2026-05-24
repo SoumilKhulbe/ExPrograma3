@@ -10,16 +10,22 @@ pygame.init()
 pygame.mixer.init()
 
 LARGURA = 960
-ALTURA = 704
+
+ALTURA_MAPA = 704
+ALTURA_UI = 96
+
+ALTURA = ALTURA_MAPA + ALTURA_UI
 
 TELA = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption("Pac-Man")
 
 clock = pygame.time.Clock()
 
+fonte = pygame.font.SysFont("arial", 32)
+
 mapa = Mapa()
 
-player = player(LARGURA, ALTURA)
+player = player(LARGURA, ALTURA_MAPA)
 
 explosao_sound = pygame.mixer.Sound(
     "assets/som/roblox-explosion-sound_HNC20s9c.mp3"
@@ -143,11 +149,16 @@ while rodando:
 
     coletado = mapa.coletar(
 
-        player.rect.centerx,
-        player.rect.centery
+        player.hitbox.centerx,
+        player.hitbox.centery
     )
 
-    if coletado == 3:
+    if coletado == 2:
+        player.pontos += 10
+
+    elif coletado == 3:
+
+        player.pontos += 50
 
         pickup_sound.play()
 
@@ -163,7 +174,7 @@ while rodando:
             projetil.x > LARGURA + 100 or
 
             projetil.y < -100 or
-            projetil.y > ALTURA + 100
+            projetil.y > ALTURA_MAPA + 100
         ):
 
             if projetil in player.projeteis:
@@ -206,7 +217,7 @@ while rodando:
             if fantasma.vivo == False:
                 continue
 
-            if projetil.rect.colliderect(fantasma.rect):
+            if projetil.rect.colliderect(fantasma.hitbox):
 
                 death_sound = random.choice(
                     death_sounds
@@ -252,7 +263,7 @@ while rodando:
             if fantasma.vivo:
 
                 if explosao.rect.colliderect(
-                    fantasma.rect
+                    fantasma.hitbox
                 ):
 
                     death_sound = random.choice(
@@ -266,7 +277,13 @@ while rodando:
         if explosao.finalizada:
             explosoes.remove(explosao)
 
-    TELA.fill((0, 0, 0))
+    TELA.fill((15, 15, 15))
+
+    pygame.draw.rect(
+        TELA,
+        (0, 0, 0),
+        (0, 0, LARGURA, ALTURA_MAPA)
+    )
 
     mapa.desenhar(TELA)
 
@@ -276,15 +293,15 @@ while rodando:
             player,
             mapa,
             LARGURA,
-            ALTURA
+            ALTURA_MAPA
         )
 
         fantasma.desenhar(TELA)
 
         if fantasma.vivo:
 
-            if player.rect.colliderect(
-                fantasma.rect
+            if player.hitbox.colliderect(
+                fantasma.hitbox
             ):
 
                 rodando = False
@@ -293,6 +310,34 @@ while rodando:
         explosao.desenhar(TELA)
 
     player.desenhar(TELA)
+
+    pygame.draw.rect(
+        TELA,
+        (25, 25, 25),
+        (0, ALTURA_MAPA, LARGURA, ALTURA_UI)
+    )
+
+    texto_pontos = fonte.render(
+        f"PONTOS: {player.pontos}",
+        True,
+        (255, 255, 255)
+    )
+
+    TELA.blit(
+        texto_pontos,
+        (20, ALTURA_MAPA + 25)
+    )
+
+    texto_arma = fonte.render(
+        f"ARMA: {player.arma}",
+        True,
+        (255, 255, 0)
+    )
+
+    TELA.blit(
+        texto_arma,
+        (350, ALTURA_MAPA + 25)
+    )
 
     pygame.display.update()
 

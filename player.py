@@ -59,12 +59,37 @@ class player:
 
         self.projeteis = []
 
+        self.sons_tiro = {
+
+            "sniper": pygame.mixer.Sound(
+                "assets/som/freesound_community-sniper-rifle-firing-2-39885.mp3"
+            ),
+
+            "ak": pygame.mixer.Sound(
+                "assets/som/Gun_2.wav"
+            ),
+
+            "bazuca": pygame.mixer.Sound(
+                "assets/som/freesound_community-grenade-launcher-106342.mp3"
+            )
+        }
+
         self.rect = pygame.Rect(
             self.x,
             self.y,
             32,
             32
         )
+
+        self.hitbox = pygame.Rect(
+            self.x + 6,
+            self.y + 6,
+            20,
+            20
+        )
+
+        self.pontos = 0
+
         self.sprites = [
 
             pygame.image.load(
@@ -143,7 +168,16 @@ class player:
 
                 self.direcao = self.proxima_direcao
 
-        dx, dy = self.obter_vetor(self.direcao)
+        if self.direcao is not None:
+
+            dx, dy = self.obter_vetor(
+                self.direcao
+            )
+
+        else:
+
+            dx = 0
+            dy = 0
 
         teste = self.rect.copy()
 
@@ -155,8 +189,15 @@ class player:
             self.rect.x += dx
             self.rect.y += dy
 
+        else:
+
+            self.direcao = None
+
         self.x = self.rect.x
         self.y = self.rect.y
+
+        self.hitbox.x = self.x + 6
+        self.hitbox.y = self.y + 6
 
         if dx != 0 or dy != 0:
 
@@ -179,28 +220,25 @@ class player:
 
         if self.arma is not None:
 
-            tiro_x = self.rect.centerx
-            tiro_y = self.rect.centery
+            offset_x = 0
+            offset_y = 0
 
-            # AJUSTE LATERAL DA BAZUCA
-            if self.arma == "bazuca":
+            if self.direcao == "direita":
+                offset_x = 18
 
-                if self.direcao == "direita":
-                    tiro_y -= 8
+            elif self.direcao == "esquerda":
+                offset_x = -18
 
-                elif self.direcao == "esquerda":
-                    tiro_y -= 8
+            elif self.direcao == "cima":
+                offset_y = -18
 
-                elif self.direcao == "cima":
-                    tiro_x += 8
-
-                elif self.direcao == "baixo":
-                    tiro_x -= 8
+            elif self.direcao == "baixo":
+                offset_y = 18
 
             novo_projetil = Projetil(
 
-                tiro_x,
-                tiro_y,
+                self.rect.centerx + offset_x,
+                self.rect.centery + offset_y,
 
                 self.direcao,
 
@@ -211,15 +249,12 @@ class player:
 
             self.projeteis.append(novo_projetil)
 
+            self.sons_tiro[self.arma].play()
+
             self.arma = None
 
     def desenhar(self, tela):
-        pygame.draw.rect(
-            tela,
-            (0, 255, 0),
-            self.rect,
-            2
-        )
+
         sprite = self.sprites[self.sprite]
 
         if self.direcao == 'esquerda':
@@ -247,6 +282,14 @@ class player:
             projetil.desenhar(tela)
 
         tela.blit(sprite, (self.x, self.y))
+
+        pygame.draw.rect(
+            tela,
+            (0, 255, 0),
+            self.hitbox,
+            2
+        )
+
         if self.arma is not None:
 
             arma_sprite = self.sprites_armas[self.arma]

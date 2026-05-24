@@ -2,6 +2,9 @@ import pygame
 import random
 import math
 
+import mapa
+
+
 class Fantasma:
 
     def __init__(self, x, y, tipo, spawn_x, spawn_y, atraso):
@@ -23,6 +26,22 @@ class Fantasma:
             32,
             32
         )
+
+        self.hitbox = pygame.Rect(
+            self.x + 6,
+            self.y + 6,
+            20,
+            20
+        )
+
+        self.fugindo = False
+
+        self.tempo_fuga = 0
+
+        self.alvo_pinky_x = self.x
+        self.alvo_pinky_y = self.y
+
+        self.tempo_pinky = pygame.time.get_ticks()
 
         self.sprites = {
 
@@ -200,39 +219,11 @@ class Fantasma:
 
                 alvo_x, alvo_y = self.alvos_descanso[self.tipo]
 
-                if random.randint(0, 10) <= 2:
-
-                    direcoes = [
-
-                        (self.velocidade, 0),
-                        (-self.velocidade, 0),
-
-                        (0, self.velocidade),
-                        (0, -self.velocidade)
-                    ]
-
-                    random.shuffle(direcoes)
-
-                    for dx, dy in direcoes:
-
-                        teste = self.rect.copy()
-
-                        teste.x += dx
-                        teste.y += dy
-
-                        if mapa.colide_parede(teste) == False:
-
-                            mover_x = dx
-                            mover_y = dy
-                            break
-
-                else:
-
-                    mover_x, mover_y = self.escolher_melhor_direcao(
-                        alvo_x,
-                        alvo_y,
-                        mapa
-                    )
+                mover_x, mover_y = self.escolher_melhor_direcao(
+                    alvo_x,
+                    alvo_y,
+                    mapa
+                )
 
             else:
 
@@ -246,26 +237,37 @@ class Fantasma:
 
                 elif self.tipo == "pinky":
 
-                    alvo_x = jogador.x
-                    alvo_y = jogador.y
+                    if agora - self.tempo_pinky >= 2000:
 
-                    frente = 96
+                        self.tempo_pinky = agora
 
-                    if jogador.direcao == "direita":
-                        alvo_x += frente
+                        tile_x = jogador.rect.centerx // 32
+                        tile_y = jogador.rect.centery // 32
 
-                    elif jogador.direcao == "esquerda":
-                        alvo_x -= frente
+                        frente = 4
 
-                    elif jogador.direcao == "cima":
-                        alvo_y -= frente
+                        if jogador.direcao == "direita":
 
-                    elif jogador.direcao == "baixo":
-                        alvo_y += frente
+                            tile_x += frente
+
+                        elif jogador.direcao == "esquerda":
+
+                            tile_x -= frente
+
+                        elif jogador.direcao == "cima":
+
+                            tile_y -= frente
+
+                        elif jogador.direcao == "baixo":
+
+                            tile_y += frente
+
+                        self.alvo_pinky_x = tile_x * 32
+                        self.alvo_pinky_y = tile_y * 32
 
                     mover_x, mover_y = self.escolher_melhor_direcao(
-                        alvo_x,
-                        alvo_y,
+                        self.alvo_pinky_x,
+                        self.alvo_pinky_y,
                         mapa
                     )
 
@@ -306,9 +308,32 @@ class Fantasma:
                         (jogador.y - self.y) ** 2
                     )
 
-                    if distancia < 120:
+                    if self.fugindo == False:
 
-                        alvo_x, alvo_y = self.alvos_descanso["clyde"]
+                        if distancia < 140:
+
+                            self.fugindo = True
+
+                            self.tempo_fuga = agora
+
+                    if self.fugindo:
+
+                        if agora - self.tempo_fuga >= 4000:
+
+                            self.fugindo = False
+
+                        alvo_x = self.x
+                        alvo_y = self.y
+
+                        if jogador.x > self.x:
+                            alvo_x -= 200
+                        else:
+                            alvo_x += 200
+
+                        if jogador.y > self.y:
+                            alvo_y -= 200
+                        else:
+                            alvo_y += 200
 
                     else:
 
@@ -361,6 +386,9 @@ class Fantasma:
         self.rect.x = self.x
         self.rect.y = self.y
 
+        self.hitbox.x = self.x + 6
+        self.hitbox.y = self.y + 6
+
     def morrer(self):
 
         self.vivo = False
@@ -389,3 +417,10 @@ class Fantasma:
         sprite = self.sprites[self.tipo][self.frame]
 
         tela.blit(sprite, (self.x, self.y))
+
+        pygame.draw.rect(
+            tela,
+            (255, 0, 0),
+            self.hitbox,
+            2
+        )
