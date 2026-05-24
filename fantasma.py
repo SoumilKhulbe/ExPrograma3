@@ -3,10 +3,12 @@ import random
 import math
 
 class Fantasma:
-    def __init__(self, x, y, tipo, spawn_x, spawn_y):
+
+    def __init__(self, x, y, tipo, spawn_x, spawn_y, atraso):
 
         self.x = x
         self.y = y
+
         self.frame = 0
         self.contador_animacao = 0
 
@@ -18,27 +20,56 @@ class Fantasma:
         self.rect = pygame.Rect(
             self.x,
             self.y,
-            16,
-            16
+            32,
+            32
         )
 
-        # sprites
         self.sprites = {
-            "blinky": [pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_0_0.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_0_1.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_0_2.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_0_3.png")],
-            "pinky": [pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_1_0.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_1_1.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_1_2.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_1_3.png")],
-            "inky": [pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_0.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_1.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_2.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_3.png")],
-            "clyde": [pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_0.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_1.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_2.png"), pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_3.png")]
+
+            "blinky": [
+
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_0_0.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_0_1.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_0_2.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_0_3.png")
+            ],
+
+            "pinky": [
+
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_1_0.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_1_1.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_1_2.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_1_3.png")
+            ],
+
+            "inky": [
+
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_0.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_1.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_2.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_2_3.png")
+            ],
+
+            "clyde": [
+
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_0.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_1.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_2.png"),
+                pygame.image.load("assets/PacManAssets-Ghosts/PacManAssets-Ghosts_3_3.png")
+            ]
         }
+
         self.spawn_x = spawn_x
         self.spawn_y = spawn_y
 
         self.vivo = True
 
-        self.tempo_respawn = 0
-        self.direcao_pinky = "horizontal"
+        self.liberado = False
 
-        self.tempo_decisao = 0
-        
+        self.atraso = atraso
+
+        self.tempo_inicio = pygame.time.get_ticks()
+
         self.modo = "ativo"
 
         self.tempo_modo = pygame.time.get_ticks()
@@ -46,14 +77,77 @@ class Fantasma:
         self.alvos_descanso = {
 
             "blinky": (750, 50),
-
             "pinky": (50, 50),
 
             "inky": (50, 550),
-
             "clyde": (750, 550)
         }
-    def mover(self, jogador, largura, altura):
+
+        self.mover_x = self.velocidade
+        self.mover_y = 0
+
+    def alinhado_no_tile(self):
+
+        tolerancia = self.velocidade
+
+        alinhado_x = (
+            abs((self.rect.centerx % 32) - 16)
+            <= tolerancia
+        )
+
+        alinhado_y = (
+            abs((self.rect.centery % 32) - 16)
+            <= tolerancia
+        )
+
+        return alinhado_x and alinhado_y
+
+    def escolher_melhor_direcao(self, alvo_x, alvo_y, mapa):
+
+        direcoes = [
+
+            (self.velocidade, 0),
+            (-self.velocidade, 0),
+
+            (0, self.velocidade),
+            (0, -self.velocidade)
+        ]
+
+        melhor_distancia = 999999
+
+        melhor_x = self.mover_x
+        melhor_y = self.mover_y
+
+        for dx, dy in direcoes:
+
+            if dx == -self.mover_x and dy == -self.mover_y:
+                continue
+
+            teste = self.rect.copy()
+
+            teste.x += dx
+            teste.y += dy
+
+            if mapa.colide_parede(teste):
+                continue
+
+            distancia = math.sqrt(
+
+                (alvo_x - teste.x) ** 2 +
+                (alvo_y - teste.y) ** 2
+            )
+
+            if distancia < melhor_distancia:
+
+                melhor_distancia = distancia
+
+                melhor_x = dx
+                melhor_y = dy
+
+        return melhor_x, melhor_y
+
+    def mover(self, jogador, mapa, largura, altura):
+
         if self.vivo == False:
 
             agora = pygame.time.get_ticks()
@@ -66,133 +160,191 @@ class Fantasma:
                 self.y = self.spawn_y
 
             return
-        if self.modo == "descanso":
 
-            alvo_x, alvo_y = self.alvos_descanso[self.tipo]
-
-            if alvo_x > self.x:
-                self.x += self.velocidade
-
-            elif alvo_x < self.x:
-                self.x -= self.velocidade
-
-            if alvo_y > self.y:
-                self.y += self.velocidade
-
-            elif alvo_y < self.y:
-                self.y -= self.velocidade
-
-
-        elif self.tipo == "blinky":
-            if jogador.x > self.x:
-                self.x += self.velocidade
-
-            elif jogador.x < self.x:
-                self.x -= self.velocidade
-
-            if jogador.y > self.y:
-                self.y += self.velocidade
-
-            elif jogador.y < self.y:
-                self.y -= self.velocidade
-
-
-        elif self.tipo == "pinky":
-
-            alvo_x = jogador.x
-            alvo_y = jogador.y
-
-            if jogador.direcao == "direita":
-                alvo_x += 80
-
-            elif jogador.direcao == "esquerda":
-                alvo_x -= 80
-
-            elif jogador.direcao == "cima":
-                alvo_y -= 80
-
-            elif jogador.direcao == "baixo":
-                alvo_y += 80
-
-            dx = alvo_x - self.x
-            dy = alvo_y - self.y
+        if self.liberado == False:
 
             agora = pygame.time.get_ticks()
 
-            if agora - self.tempo_decisao > 300:
+            if agora - self.tempo_inicio >= self.atraso:
 
-                self.tempo_decisao = agora
+                self.liberado = True
 
-                if abs(dx) > abs(dy):
+            else:
+                return
 
-                    self.direcao_pinky = "horizontal"
+        agora = pygame.time.get_ticks()
+
+        if self.modo == "ativo":
+
+            self.velocidade = 2
+
+            if agora - self.tempo_modo >= 15000:
+
+                self.modo = "descanso"
+
+                self.tempo_modo = agora
+
+        else:
+
+            self.velocidade = 1
+
+            if agora - self.tempo_modo >= 4000:
+
+                self.modo = "ativo"
+
+                self.tempo_modo = agora
+
+        if self.alinhado_no_tile():
+
+            if self.modo == "descanso":
+
+                alvo_x, alvo_y = self.alvos_descanso[self.tipo]
+
+                if random.randint(0, 10) <= 2:
+
+                    direcoes = [
+
+                        (self.velocidade, 0),
+                        (-self.velocidade, 0),
+
+                        (0, self.velocidade),
+                        (0, -self.velocidade)
+                    ]
+
+                    random.shuffle(direcoes)
+
+                    for dx, dy in direcoes:
+
+                        teste = self.rect.copy()
+
+                        teste.x += dx
+                        teste.y += dy
+
+                        if mapa.colide_parede(teste) == False:
+
+                            mover_x = dx
+                            mover_y = dy
+                            break
 
                 else:
 
-                    self.direcao_pinky = "vertical"
-
-            if self.direcao_pinky == "horizontal":
-
-                if abs(dx) > 10:
-
-                    if dx > 0:
-                        self.x += self.velocidade
-
-                    else:
-                        self.x -= self.velocidade
+                    mover_x, mover_y = self.escolher_melhor_direcao(
+                        alvo_x,
+                        alvo_y,
+                        mapa
+                    )
 
             else:
 
-                if abs(dy) > 10:
+                if self.tipo == "blinky":
 
-                    if dy > 0:
-                        self.y += self.velocidade
+                    mover_x, mover_y = self.escolher_melhor_direcao(
+                        jogador.x,
+                        jogador.y,
+                        mapa
+                    )
+
+                elif self.tipo == "pinky":
+
+                    alvo_x = jogador.x
+                    alvo_y = jogador.y
+
+                    frente = 96
+
+                    if jogador.direcao == "direita":
+                        alvo_x += frente
+
+                    elif jogador.direcao == "esquerda":
+                        alvo_x -= frente
+
+                    elif jogador.direcao == "cima":
+                        alvo_y -= frente
+
+                    elif jogador.direcao == "baixo":
+                        alvo_y += frente
+
+                    mover_x, mover_y = self.escolher_melhor_direcao(
+                        alvo_x,
+                        alvo_y,
+                        mapa
+                    )
+
+                elif self.tipo == "inky":
+
+                    direcoes = [
+
+                        (self.velocidade, 0),
+                        (-self.velocidade, 0),
+
+                        (0, self.velocidade),
+                        (0, -self.velocidade)
+                    ]
+
+                    random.shuffle(direcoes)
+
+                    mover_x = self.mover_x
+                    mover_y = self.mover_y
+
+                    for dx, dy in direcoes:
+
+                        teste = self.rect.copy()
+
+                        teste.x += dx
+                        teste.y += dy
+
+                        if mapa.colide_parede(teste) == False:
+
+                            mover_x = dx
+                            mover_y = dy
+                            break
+
+                elif self.tipo == "clyde":
+
+                    distancia = math.sqrt(
+
+                        (jogador.x - self.x) ** 2 +
+                        (jogador.y - self.y) ** 2
+                    )
+
+                    if distancia < 120:
+
+                        alvo_x, alvo_y = self.alvos_descanso["clyde"]
 
                     else:
-                        self.y -= self.velocidade
-        elif self.tipo == "inky":
 
-            self.x += random.randint(-2, 2)
-            self.y += random.randint(-2, 2)
+                        alvo_x = jogador.x
+                        alvo_y = jogador.y
 
+                    mover_x, mover_y = self.escolher_melhor_direcao(
+                        alvo_x,
+                        alvo_y,
+                        mapa
+                    )
 
-        elif self.tipo == "clyde":
+            teste = self.rect.copy()
 
-            distancia = math.sqrt(
-                (jogador.x - self.x) ** 2 +
-                (jogador.y - self.y) ** 2
-            )
+            teste.x += mover_x
+            teste.y += mover_y
 
-            if distancia < 120:
-                self.modo = "descanso"
-                alvo_x, alvo_y = self.alvos_descanso["clyde"]
+            if mapa.colide_parede(teste) == False:
 
-                if alvo_x > self.x:
-                    self.x += self.velocidade
+                self.mover_x = mover_x
+                self.mover_y = mover_y
 
-                elif alvo_x < self.x:
-                    self.x -= self.velocidade
+        teste = self.rect.copy()
 
-                if alvo_y > self.y:
-                    self.y += self.velocidade
+        teste.x += self.mover_x
+        teste.y += self.mover_y
 
-                elif alvo_y < self.y:
-                    self.y -= self.velocidade
-            else:
+        if mapa.colide_parede(teste) == False:
 
-                if jogador.x > self.x:
-                    self.x += self.velocidade
+            self.x += self.mover_x
+            self.y += self.mover_y
 
-                elif jogador.x < self.x:
-                    self.x -= self.velocidade
+        else:
 
-                if jogador.y > self.y:
-                    self.y += self.velocidade
-
-                elif jogador.y < self.y:
-                    self.y -= self.velocidade
-
-        # LIMITES DA TELA
+            self.mover_x = 0
+            self.mover_y = 0
 
         if self.x < 0:
             self.x = 0
@@ -208,6 +360,7 @@ class Fantasma:
 
         self.rect.x = self.x
         self.rect.y = self.y
+
     def morrer(self):
 
         self.vivo = False
@@ -215,67 +368,18 @@ class Fantasma:
         self.tempo_morte = pygame.time.get_ticks()
 
     def desenhar(self, tela):
+
         if self.vivo == False:
-
-            tempo = pygame.time.get_ticks()
-
-            for i in range(25):
-
-                if (tempo // 100 + i) % 2 == 0:
-
-                    pixel_x = self.spawn_x + random.randint(-24, 24)
-
-                    pixel_y = self.spawn_y + random.randint(-24, 24)
-
-                    tamanho = random.randint(2, 5)
-
-                    superficie = pygame.Surface(
-
-                        (tamanho, tamanho),
-
-                        pygame.SRCALPHA
-                    )
-
-                    pygame.draw.rect(
-
-                        superficie,
-
-                        (255, 0, 0, 140),
-
-                        (0, 0, tamanho, tamanho)
-                    )
-
-                    tela.blit(
-                        superficie,
-                        (pixel_x, pixel_y)
-                    )
-
             return
-        agora = pygame.time.get_ticks()
 
-        if self.modo == "ativo":
+        if self.liberado == False:
+            return
 
-            troca = 20000
+        self.contador_animacao += 1
 
-        else:
+        if self.contador_animacao >= 10:
 
-            troca = 4000
-
-        if agora - self.tempo_modo >= troca:
-
-            self.tempo_modo = agora
-
-            if self.modo == "ativo":
-
-                self.modo = "descanso"
-
-            else:
-
-                self.modo = "ativo"
-                self.contador_animacao += 1
-
-                if self.contador_animacao >= 10:
-                    self.contador_animacao = 0
+            self.contador_animacao = 0
 
             self.frame += 1
 

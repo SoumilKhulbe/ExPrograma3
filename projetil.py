@@ -38,6 +38,8 @@ class Projetil:
             self.tamanho,
             self.tamanho
         )
+        if self.arma == "bazuca":
+            self.rect = self.rect.inflate(-20, -20)
 
     def mover(self):
 
@@ -57,7 +59,12 @@ class Projetil:
         self.rect.y = self.y
 
     def desenhar(self, tela):
-
+        pygame.draw.rect(
+            tela,
+            (0, 255, 0),
+            self.rect,
+            2
+        )
         sprite = pygame.transform.scale(
 
             self.sprite,

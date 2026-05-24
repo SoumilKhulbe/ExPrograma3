@@ -1,115 +1,206 @@
 import random
 from projetil import Projetil
 import pygame
+
 pygame.mixer.init()
+
+TILE = 32
+
 class player:
+
     def __init__(self, largura, altura):
+
         self.tamanho = 32
 
-        self.x = largura // 2 - self.tamanho // 2
-        self.y = altura // 2 - self.tamanho // 2
-        self.velocidade = 4
+        self.x = 32 * 14
+        self.y = 32 * 16
 
-        self.direcao = 'direita'
+        self.velocidade = 2
+
+        self.direcao = "esquerda"
+        self.proxima_direcao = "esquerda"
+
         self.sprite = 0
         self.contador_animacao = 0
-        
+
         self.arma = None
 
         self.armas = ["sniper", "ak", "bazuca"]
 
         self.sprites_armas = {
-            "sniper": pygame.image.load('assets/guns/Sniper-rifle-3-scoped.png'), 
-            "ak": pygame.image.load('assets/guns/Assaut-rifle-1.png'),
-            "bazuca": pygame.image.load('assets/guns/RPG-reisized.png')
-            }
+
+            "sniper": pygame.image.load(
+                'assets/guns/Sniper-rifle-3-scoped.png'
+            ),
+
+            "ak": pygame.image.load(
+                'assets/guns/Assaut-rifle-1.png'
+            ),
+
+            "bazuca": pygame.image.load(
+                'assets/guns/RPG-reisized.png'
+            )
+        }
+
         self.sprites_projetil = {
 
-        "sniper": pygame.image.load(
-            'assets/guns/p_sniper.png'
-        ),
+            "sniper": pygame.image.load(
+                'assets/guns/p_sniper.png'
+            ),
 
-        "ak": pygame.image.load(
-            'assets/guns/p_ak.png'
-        ),
+            "ak": pygame.image.load(
+                'assets/guns/p_ak.png'
+            ),
 
-        "bazuca": pygame.image.load(
-            'assets/guns/AmoB1.png'
-        )
-    }
-        
+            "bazuca": pygame.image.load(
+                'assets/guns/AmoB1.png'
+            )
+        }
+
         self.projeteis = []
 
+        self.rect = pygame.Rect(
+            self.x,
+            self.y,
+            32,
+            32
+        )
+        self.sprites = [
 
-        self.rect = pygame.Rect(self.x, self.y, 16, 16)
+            pygame.image.load(
+                'assets/PacManAssets-PacMan_0_0.png'
+            ),
 
-        self.sprites = [ 
-                pygame.image.load('assets/PacManAssets-PacMan_0_0.png'),
-                pygame.image.load('assets/PacManAssets-PacMan_0_1.png'),
-                pygame.image.load('assets/PacManAssets-PacMan_0_2.png')
-            ]
+            pygame.image.load(
+                'assets/PacManAssets-PacMan_0_1.png'
+            ),
 
-    def mover(self, largura, altura):
+            pygame.image.load(
+                'assets/PacManAssets-PacMan_0_2.png'
+            )
+        ]
+
+    def alinhado_no_tile(self):
+
+        tolerancia = self.velocidade
+
+        alinhado_x = (
+            abs((self.rect.centerx % TILE) - TILE // 2)
+            <= tolerancia
+        )
+
+        alinhado_y = (
+            abs((self.rect.centery % TILE) - TILE // 2)
+            <= tolerancia
+        )
+
+        return alinhado_x and alinhado_y
+
+    def obter_vetor(self, direcao):
+
+        if direcao == "direita":
+            return self.velocidade, 0
+
+        elif direcao == "esquerda":
+            return -self.velocidade, 0
+
+        elif direcao == "cima":
+            return 0, -self.velocidade
+
+        elif direcao == "baixo":
+            return 0, self.velocidade
+
+        return 0, 0
+
+    def mover(self, mapa):
+
         keys = pygame.key.get_pressed()
-        movendo = False
-        if keys[pygame.K_LEFT]:
-            self.x -= self.velocidade
-            self.direcao = 'esquerda'
-            movendo = True
-        
-        elif keys[pygame.K_RIGHT]:
-            self.x += self.velocidade
-            self.direcao = 'direita'
-            movendo = True
-        
-        elif keys[pygame.K_UP]:
-            self.y -= self.velocidade
-            self.direcao = 'cima'
-            movendo = True
-        
-        elif keys[pygame.K_DOWN]:
-            self.y += self.velocidade
-            self.direcao = 'baixo'
-            movendo = True
 
-        self.rect.x = self.x
-        self.rect.y = self.y   
-        
-        #Aqui a gente faz a animação do personagem
-        if movendo == True:
+        if keys[pygame.K_LEFT]:
+            self.proxima_direcao = "esquerda"
+
+        elif keys[pygame.K_RIGHT]:
+            self.proxima_direcao = "direita"
+
+        elif keys[pygame.K_UP]:
+            self.proxima_direcao = "cima"
+
+        elif keys[pygame.K_DOWN]:
+            self.proxima_direcao = "baixo"
+
+        if self.alinhado_no_tile():
+
+            dx, dy = self.obter_vetor(
+                self.proxima_direcao
+            )
+
+            teste = self.rect.copy()
+
+            teste.x += dx
+            teste.y += dy
+
+            if mapa.colide_parede(teste) == False:
+
+                self.direcao = self.proxima_direcao
+
+        dx, dy = self.obter_vetor(self.direcao)
+
+        teste = self.rect.copy()
+
+        teste.x += dx
+        teste.y += dy
+
+        if mapa.colide_parede(teste) == False:
+
+            self.rect.x += dx
+            self.rect.y += dy
+
+        self.x = self.rect.x
+        self.y = self.rect.y
+
+        if dx != 0 or dy != 0:
+
             self.contador_animacao += 1
-            if self.contador_animacao >= 10:
+
+            if self.contador_animacao >= 8:
+
                 self.contador_animacao = 0
+
                 self.sprite += 1
+
                 if self.sprite >= 3:
                     self.sprite = 0
-        else:
-            self.sprite = 0
-        
 
-
-        if self.x < 0:
-            self.x = 0
-        elif self.x > largura - self.tamanho:
-            self.x = largura - self.tamanho
-        
-        if self.y < 0:
-            self.y = 0
-        elif self.y > altura - self.tamanho:
-            self.y = altura - self.tamanho
-    
     def pegar_arma(self):
+
         self.arma = random.choice(self.armas)
 
-        
     def atirar(self):
 
         if self.arma is not None:
 
+            tiro_x = self.rect.centerx
+            tiro_y = self.rect.centery
+
+            # AJUSTE LATERAL DA BAZUCA
+            if self.arma == "bazuca":
+
+                if self.direcao == "direita":
+                    tiro_y -= 8
+
+                elif self.direcao == "esquerda":
+                    tiro_y -= 8
+
+                elif self.direcao == "cima":
+                    tiro_x += 8
+
+                elif self.direcao == "baixo":
+                    tiro_x -= 8
+
             novo_projetil = Projetil(
 
-                self.x,
-                self.y,
+                tiro_x,
+                tiro_y,
 
                 self.direcao,
 
@@ -120,44 +211,85 @@ class player:
 
             self.projeteis.append(novo_projetil)
 
-            if self.arma == "ak":
-                pygame.mixer.Sound("assets/som/Gun_2.wav").play()
-
-            if self.arma == "sniper":
-                pygame.mixer.Sound("assets/som/freesound_community-sniper-rifle-firing-2-39885.mp3").play()
-            print(f"Acabou a munição da {self.arma}")
-
             self.arma = None
 
     def desenhar(self, tela):
+        pygame.draw.rect(
+            tela,
+            (0, 255, 0),
+            self.rect,
+            2
+        )
         sprite = self.sprites[self.sprite]
-        #Aqui o sprite roda conforme a direção
+
         if self.direcao == 'esquerda':
-            sprite = pygame.transform.rotate(sprite, 180)
+
+            sprite = pygame.transform.rotate(
+                sprite,
+                180
+            )
+
         elif self.direcao == 'cima':
-            sprite = pygame.transform.rotate(sprite, 90)
+
+            sprite = pygame.transform.rotate(
+                sprite,
+                90
+            )
+
         elif self.direcao == 'baixo':
-            sprite = pygame.transform.rotate(sprite, -90)
-        
+
+            sprite = pygame.transform.rotate(
+                sprite,
+                -90
+            )
+
         for projetil in self.projeteis:
             projetil.desenhar(tela)
-        
-        #desenha o sprite do jogador na tela
+
         tela.blit(sprite, (self.x, self.y))
-
-        #aq é da arma (o que esse jogo é sobre man...)
         if self.arma is not None:
-            arma_sprite = self.sprites_armas[self.arma]
-            #Botar a arma pra girar junto pelo amor de Deus
-            if self.direcao == 'esquerda':
-                arma_sprite = pygame.transform.rotate(arma_sprite, 180)
-                tela.blit(arma_sprite, (self.x - 32, self.y-8))
-            elif self.direcao == 'direita':
-                tela.blit(arma_sprite, (self.x + 16, self.y+8))
-            elif self.direcao == 'cima':
-                arma_sprite = pygame.transform.rotate(arma_sprite, 90)
-                tela.blit(arma_sprite, (self.x+8, self.y - 32))
-            elif self.direcao == 'baixo':
-                arma_sprite = pygame.transform.rotate(arma_sprite, -90)
-                tela.blit(arma_sprite, (self.x-8, self.y + 16))
 
+            arma_sprite = self.sprites_armas[self.arma]
+
+            if self.direcao == "esquerda":
+
+                arma_sprite = pygame.transform.rotate(
+                    arma_sprite,
+                    180
+                )
+
+                tela.blit(
+                    arma_sprite,
+                    (self.x - 32, self.y - 8)
+                )
+
+            elif self.direcao == "direita":
+
+                tela.blit(
+                    arma_sprite,
+                    (self.x + 16, self.y + 8)
+                )
+
+            elif self.direcao == "cima":
+
+                arma_sprite = pygame.transform.rotate(
+                    arma_sprite,
+                    90
+                )
+
+                tela.blit(
+                    arma_sprite,
+                    (self.x + 8, self.y - 32)
+                )
+
+            elif self.direcao == "baixo":
+
+                arma_sprite = pygame.transform.rotate(
+                    arma_sprite,
+                    -90
+                )
+
+                tela.blit(
+                    arma_sprite,
+                    (self.x - 8, self.y + 16)
+                )
