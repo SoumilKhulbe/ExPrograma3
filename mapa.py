@@ -32,7 +32,7 @@ LAYOUT = [
 
     [1,2,1,1,2,1,2,1,2,1,1,1,2,0,0,0,2,1,1,1,2,1,2,1,2,1,1,2,2,1],
 
-    [0,0,0,0,2,1,2,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,2,1,2,0,0,0,0,0],
+    [1,0,0,0,2,1,2,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,2,1,2,0,0,0,0,1], #Caso haja tempo, abra aqui e faça um caminho que teleporta para o outro lado do mapa
 
     [1,1,1,1,2,1,1,1,2,1,1,1,2,2,2,2,2,1,1,1,2,1,1,1,2,1,1,1,1,1],
 
@@ -80,35 +80,7 @@ class Mapa:
                         pygame.Rect(co * TILE, li * TILE, TILE, TILE)
                     )
 
-    # ------------------------------------------------------------------ colisão
-    def destruir_parede(self, x, y):
 
-        col = x // TILE
-        lin = y // TILE
-
-        if 0 <= lin < self.linhas and 0 <= col < self.colunas:
-
-            if self.grade[lin][col] == 1:
-
-                self.grade[lin][col] = 0
-
-                self.paredes = []
-
-                for li in range(self.linhas):
-
-                    for co in range(self.colunas):
-
-                        if self.grade[li][co] == 1:
-
-                            self.paredes.append(
-
-                                pygame.Rect(
-                                    co * TILE,
-                                    li * TILE,
-                                    TILE,
-                                    TILE
-                                )
-                            )
     def resolver_colisao_x(self, entidade_rect, dx):
         entidade_rect.x += dx
         for parede in self.paredes:

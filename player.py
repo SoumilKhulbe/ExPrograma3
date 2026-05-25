@@ -283,12 +283,6 @@ class player:
 
         tela.blit(sprite, (self.x, self.y))
 
-        pygame.draw.rect(
-            tela,
-            (0, 255, 0),
-            self.hitbox,
-            2
-        )
 
         if self.arma is not None:
 
@@ -310,7 +304,7 @@ class player:
 
                 tela.blit(
                     arma_sprite,
-                    (self.x + 16, self.y + 8)
+                    (self.x -4, self.y + 8)
                 )
 
             elif self.direcao == "cima":
@@ -334,5 +328,5 @@ class player:
 
                 tela.blit(
                     arma_sprite,
-                    (self.x - 8, self.y + 16)
+                    (self.x - 8, self.y -2)
                 )

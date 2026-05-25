@@ -59,12 +59,7 @@ class Projetil:
         self.rect.y = self.y
 
     def desenhar(self, tela):
-        pygame.draw.rect(
-            tela,
-            (0, 255, 0),
-            self.rect,
-            2
-        )
+
         sprite = pygame.transform.scale(
 
             self.sprite,

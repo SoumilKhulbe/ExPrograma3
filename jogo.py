@@ -199,12 +199,6 @@ while rodando:
                     )
                 )
 
-                mapa.destruir_parede(
-
-                    projetil.rect.centerx,
-                    projetil.rect.centery
-                )
-
             if projetil.arma != "sniper":
 
                 if projetil in player.projeteis:
