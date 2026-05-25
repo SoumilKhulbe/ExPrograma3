@@ -65,13 +65,13 @@ COR_POWER  = (255, 80,  200)
 
 class Mapa:
     def __init__(self):
-        # Copia o layout para poder modificar em jogo (remover itens coletados)
+        
         self.grade = [linha[:] for linha in LAYOUT]
 
         self.linhas  = len(self.grade)
         self.colunas = len(self.grade[0])
 
-        # Pré-calcula lista de rects de parede uma única vez (melhor performance)
+        
         self.paredes = []
         for li in range(self.linhas):
             for co in range(self.colunas):
