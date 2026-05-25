@@ -32,11 +32,12 @@ death_sounds = [
     pygame.mixer.Sound("assets/som/Oswald_Attract.wav"),
     pygame.mixer.Sound("assets/som/026_abnormality_dead_a_v1.wav"),
     pygame.mixer.Sound("assets/som/Dead.wav"),
+    pygame.mixer.Sound("assets/som/tmp_7901-951678082.mp3"),
 ]
 for sound in death_sounds:
     sound.set_volume(0.6)
 
-
+victory_sound = pygame.mixer.Sound("assets/som/final-fantasy-vii-victory-fanfare-1.mp3")
 spritesheet_explosao = pygame.image.load(
     "assets/guns/clipart2508851.png"
 ).convert_alpha()
@@ -56,8 +57,9 @@ for linha in range(3):
         sprite = pygame.transform.scale(sprite, (96, 96))
         sprites_explosao.append(sprite)
 
-
-
+bgm = pygame.mixer.Sound("assets/som/Malkuth Battle Theme 3.wav")
+bgm.set_volume(0.5)
+bgm.play(-1)  # Loop infinito
 def iniciar_jogo():
     global mapa, player_obj, fantasmas, explosoes
 
@@ -249,6 +251,7 @@ while rodando:
 
         elif estado == "vitoria":
             hud.desenhar_vitoria(TELA, player_obj.pontos)
+            pygame.mixer.play(victory_sound)
 
     pygame.display.update()
 
