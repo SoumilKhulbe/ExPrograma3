@@ -152,6 +152,38 @@ class HUD:
             )
             tela.blit(reiniciar, reiniciar.get_rect(center=(LARGURA // 2, centro_y + 80)))
 
+    def desenhar_vitoria(self, tela, pontos):
+        overlay = pygame.Surface((LARGURA, ALTURA_MAPA + ALTURA_UI), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 185))
+        tela.blit(overlay, (0, 0))
+
+        centro_y = (ALTURA_MAPA + ALTURA_UI) // 2
+
+        self.desenhar_texto_contornado(
+            tela,
+            self.fonte_grande,
+            "VOCE VENCEU!",
+            AMARELO,
+            (0, 0, 0),
+            (LARGURA // 2, centro_y - 100)
+        )
+
+        pygame.draw.rect(
+            tela,
+            AZUL_CL,
+            (LARGURA // 2 - 220, centro_y - 48, 440, 4)
+        )
+
+        pts = self.fonte_media.render(f"PONTUACAO FINAL:  {pontos}", True, BRANCO)
+        tela.blit(pts, pts.get_rect(center=(LARGURA // 2, centro_y + 10)))
+
+        if (pygame.time.get_ticks() // 500) % 2 == 0:
+            reiniciar = self.fonte_label.render(
+                "ENTER - jogar novamente          ESC - sair",
+                True, BRANCO
+            )
+            tela.blit(reiniciar, reiniciar.get_rect(center=(LARGURA // 2, centro_y + 80)))
+
     # ------------------------------------------------------------------ faixa inferior (em jogo)
 
     def desenhar_ui(self, tela, pontos, arma, vidas):
