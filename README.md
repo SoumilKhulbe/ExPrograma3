@@ -12,3 +12,7 @@ A ideia por trás do nosso jogo foi adicionar mais um elemento de estratégia ao
 
 Para rodar o jogo, tambem é presciso instalar o pygame, e verificar se o VS code esta na versao correta.
 
+abas map e hub feitas com ajuda de IA. link do chat:
+https://claude.ai/share/d47c974e-f8ce-40e9-97ae-faba14e6036b
+
+função escolher_melhor_direcao no fantasma feita com ajuda de IA.
