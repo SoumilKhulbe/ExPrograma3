@@ -96,13 +96,13 @@ while rodando:
             if event.key == pygame.K_RETURN:
                 if estado == "inicio":
                     estado = "jogando"
-                elif estado == "game_over":
+                elif estado in ("game_over", "vitoria"):
                     iniciar_jogo()
                     estado = "jogando"
 
             
             if event.key == pygame.K_ESCAPE:
-                if estado == "game_over":
+                if estado in ("game_over", "vitoria"):
                     rodando = False
 
             
@@ -133,6 +133,9 @@ while rodando:
                 player_obj.pontos += 50
                 pickup_sound.play()
                 player_obj.pegar_arma()
+
+            if coletado != 0 and mapa.completo():
+                estado = "vitoria"
 
             
             for projetil in player_obj.projeteis[:]:
@@ -243,6 +246,9 @@ while rodando:
         
         if estado == "game_over":
             hud.desenhar_game_over(TELA, player_obj.pontos)
+
+        elif estado == "vitoria":
+            hud.desenhar_vitoria(TELA, player_obj.pontos)
 
     pygame.display.update()
 

@@ -135,6 +135,14 @@ class Mapa:
 
         return 0
 
+    def completo(self):
+        for linha in self.grade:
+            for valor in linha:
+                if valor in (2, 3):
+                    return False
+
+        return True
+
     # ------------------------------------------------------------------ desenho
 
     def desenhar(self, tela):
