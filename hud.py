@@ -229,3 +229,32 @@ class HUD:
                 (LARGURA - 48, base_y + ALTURA_UI // 2),
                 14, 2
             )
+    def desenhar_vitoria(self, tela, pontos):
+        # Overlay escuro sobre o jogo congelado
+        overlay = pygame.Surface((LARGURA, ALTURA_MAPA + ALTURA_UI), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 190))
+        tela.blit(overlay, (0, 0))
+
+        centro_y = (ALTURA_MAPA + ALTURA_UI) // 2
+
+        # Título VITÓRIA
+        vitoria = self.fonte_grande.render("VITÓRIA!", True, AZUL_CL)
+        tela.blit(vitoria, vitoria.get_rect(center=(LARGURA // 2, centro_y - 100)))
+
+        # Linha separadora
+        pygame.draw.rect(
+            tela, AZUL_CL,
+            (LARGURA // 2 - 220, centro_y - 48, 440, 4)
+        )
+
+        # Pontuação final
+        pts = self.fonte_media.render(f"PONTUAÇÃO FINAL:  {pontos}", True, AMARELO)
+        tela.blit(pts, pts.get_rect(center=(LARGURA // 2, centro_y + 10)))
+
+        # Instrução piscante
+        if (pygame.time.get_ticks() // 500) % 2 == 0:
+            reiniciar = self.fonte_label.render(
+                "ENTER — jogar novamente          ESC — sair",
+                True, BRANCO
+            )
+            tela.blit(reiniciar, reiniciar.get_rect(center=(LARGURA // 2, centro_y + 80)))
