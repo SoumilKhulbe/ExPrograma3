@@ -41,7 +41,8 @@ victory_sound = pygame.mixer.Sound("assets/som/final-fantasy-vii-victory-fanfare
 spritesheet_explosao = pygame.image.load(
     "assets/guns/clipart2508851.png"
 ).convert_alpha()
-
+game_over_sound = pygame.mixer.Sound("assets/som/1.41 Toby Fox - DELTARUNE Chapter 2 OST - 41 Dialtone.mp3")
+game_over_sound.set_volume(0.6)
 largura_sprite = 480 // 5
 altura_sprite  = 280 // 3
 
@@ -59,7 +60,7 @@ for linha in range(3):
 
 bgm = pygame.mixer.Sound("assets/som/Malkuth Battle Theme 3.wav")
 bgm.set_volume(0.5)
-bgm.play(-1)  # Loop infinito
+
 def iniciar_jogo():
     global mapa, player_obj, fantasmas, explosoes
 
@@ -98,9 +99,15 @@ while rodando:
             if event.key == pygame.K_RETURN:
                 if estado == "inicio":
                     estado = "jogando"
+                    game_over_sound.stop()  # para o som de game over caso esteja tocando
+                    victory_sound.stop()
+                    bgm.play(-1)  # toca a música de fundo em loop
                 elif estado in ("game_over", "vitoria"):
                     iniciar_jogo()
                     estado = "jogando"
+                    game_over_sound.stop()  # para o som de game over caso esteja tocando
+                    victory_sound.stop()
+                    bgm.play(-1)
 
             
             if event.key == pygame.K_ESCAPE:
@@ -114,12 +121,15 @@ while rodando:
 
     
     if estado == "jogando":
-
+        game_over_sound.stop()  # para o som de game over caso esteja tocando
         if player_obj.morrendo:
             terminou = player_obj.atualizar_morte()
 
             if terminou and player_obj.vidas <= 0:
                 estado = "game_over"
+                bgm.stop()
+                victory_sound.stop()
+                game_over_sound.play()
 
         else:
             player_obj.mover(mapa)
@@ -138,6 +148,9 @@ while rodando:
 
             if coletado != 0 and mapa.completo():
                 estado = "vitoria"
+                bgm.stop()
+                game_over_sound.stop()
+                victory_sound.play()
 
             
             for projetil in player_obj.projeteis[:]:
@@ -247,11 +260,15 @@ while rodando:
 
         
         if estado == "game_over":
+            game_over_sound.play()
             hud.desenhar_game_over(TELA, player_obj.pontos)
+            
+
+
 
         elif estado == "vitoria":
             hud.desenhar_vitoria(TELA, player_obj.pontos)
-            pygame.mixer.play(victory_sound)
+            
 
     pygame.display.update()
 
