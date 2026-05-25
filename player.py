@@ -105,8 +105,12 @@ class player:
             pygame.image.load(
                 'assets/PacManAssets-PacMan_0_2.png'
             )
-            
+        
+        
         ]
+        self.morrendo = False
+        self.animacao_morte_frame = 0
+        self.animacao_morte_timer = 0
 
     def alinhado_no_tile(self):
 
@@ -141,6 +145,9 @@ class player:
         return 0, 0
 
     def mover(self, mapa):
+
+        if self.morrendo:
+            return
 
         keys = pygame.key.get_pressed()
 
@@ -268,7 +275,60 @@ class player:
         self.hitbox.x = self.x + 6
         self.hitbox.y = self.y + 6
 
+    def iniciar_morte(self):
+        self.morrendo = True
+        self.animacao_morte_frame = 0
+        self.animacao_morte_timer = pygame.time.get_ticks()
+        self.direcao = None
+
+
+    def atualizar_morte(self):
+        if not self.morrendo:
+            return False
+
+        agora = pygame.time.get_ticks()
+
+        if agora - self.animacao_morte_timer >= 120:
+            self.animacao_morte_timer = agora
+            self.animacao_morte_frame += 1
+
+        if self.animacao_morte_frame >= 12:
+            self.morrendo = False
+            self.perder_vida()
+            return True
+
+        return False
+
     def desenhar(self, tela):
+
+        if self.morrendo:
+            tamanho = max(2, 32 - self.animacao_morte_frame * 2)
+            centro = self.rect.center
+
+            rect = pygame.Rect(0, 0, tamanho, tamanho)
+            rect.center = centro
+
+            pygame.draw.circle(tela, (255, 220, 0), rect.center, tamanho // 2)
+
+            abertura = min(170, 25 + self.animacao_morte_frame * 12)
+
+            pygame.draw.polygon(
+                tela,
+                (15, 15, 15),
+                [
+                    centro,
+                    (
+                        centro[0] + 32,
+                        centro[1] - abertura // 3
+                    ),
+                    (
+                        centro[0] + 32,
+                        centro[1] + abertura // 3
+                    )
+                ]
+            )
+
+            return
 
         sprite = self.sprites[self.sprite]
 

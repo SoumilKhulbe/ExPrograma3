@@ -107,105 +107,110 @@ while rodando:
 
             
             if event.key == pygame.K_z:
-                if estado == "jogando":
+                if estado == "jogando" and not player_obj.morrendo:
                     player_obj.atirar()
 
     
     if estado == "jogando":
 
-        player_obj.mover(mapa)
+        if player_obj.morrendo:
+            terminou = player_obj.atualizar_morte()
 
-        coletado = mapa.coletar(
-            player_obj.hitbox.centerx,
-            player_obj.hitbox.centery
-        )
+            if terminou and player_obj.vidas <= 0:
+                estado = "game_over"
 
-        if coletado == 2:
-            player_obj.pontos += 10
+        else:
+            player_obj.mover(mapa)
+            coletado = mapa.coletar(
+                player_obj.hitbox.centerx,
+                player_obj.hitbox.centery
+            )
 
-        elif coletado == 3:
-            player_obj.pontos += 50
-            pickup_sound.play()
-            player_obj.pegar_arma()
+            if coletado == 2:
+                player_obj.pontos += 10
 
-        
-        for projetil in player_obj.projeteis[:]:
+            elif coletado == 3:
+                player_obj.pontos += 50
+                pickup_sound.play()
+                player_obj.pegar_arma()
 
-            projetil.mover()
+            
+            for projetil in player_obj.projeteis[:]:
 
-            if (
-                projetil.x < -100 or
-                projetil.x > LARGURA + 100 or
-                projetil.y < -100 or
-                projetil.y > ALTURA_MAPA + 100
-            ):
-                if projetil in player_obj.projeteis:
-                    player_obj.projeteis.remove(projetil)
-                continue
+                projetil.mover()
 
-            if mapa.colide_parede(projetil.rect):
-
-                if projetil.arma == "bazuca":
-                    explosao_sound.play()
-                    explosoes.append(
-                        Explosao(projetil.x, projetil.y, sprites_explosao)
-                    )
-
-                if projetil.arma != "sniper":   # sniper atravessa paredes
+                if (
+                    projetil.x < -100 or
+                    projetil.x > LARGURA + 100 or
+                    projetil.y < -100 or
+                    projetil.y > ALTURA_MAPA + 100
+                ):
                     if projetil in player_obj.projeteis:
                         player_obj.projeteis.remove(projetil)
-
-                continue
-
-            for fantasma in fantasmas:
-
-                if not fantasma.vivo:
                     continue
 
-                if projetil.rect.colliderect(fantasma.hitbox):
+                if mapa.colide_parede(projetil.rect):
 
-                    random.choice(death_sounds).play()
-                    fantasma.morrer()
-
-                    if projetil.arma == "ak":
-                        if projetil in player_obj.projeteis:
-                            player_obj.projeteis.remove(projetil)
-
-                    elif projetil.arma == "bazuca":
+                    if projetil.arma == "bazuca":
                         explosao_sound.play()
                         explosoes.append(
                             Explosao(projetil.x, projetil.y, sprites_explosao)
                         )
+
+                    if projetil.arma != "sniper":   # sniper atravessa paredes
                         if projetil in player_obj.projeteis:
                             player_obj.projeteis.remove(projetil)
 
-                    elif projetil.arma == "sniper":
-                        pass   # sniper não é removida ao acertar fantasma
+                    continue
 
-        
-        for explosao in explosoes[:]:
+                for fantasma in fantasmas:
 
-            explosao.atualizar()
+                    if not fantasma.vivo:
+                        continue
 
-            for fantasma in fantasmas:
-                if fantasma.vivo:
-                    if explosao.rect.colliderect(fantasma.hitbox):
+                    if projetil.rect.colliderect(fantasma.hitbox):
+
                         random.choice(death_sounds).play()
                         fantasma.morrer()
 
-            if explosao.finalizada:
-                explosoes.remove(explosao)
+                        if projetil.arma == "ak":
+                            if projetil in player_obj.projeteis:
+                                player_obj.projeteis.remove(projetil)
 
-        
-        for fantasma in fantasmas:
+                        elif projetil.arma == "bazuca":
+                            explosao_sound.play()
+                            explosoes.append(
+                                Explosao(projetil.x, projetil.y, sprites_explosao)
+                            )
+                            if projetil in player_obj.projeteis:
+                                player_obj.projeteis.remove(projetil)
 
-            fantasma.mover(player_obj, mapa, LARGURA, ALTURA_MAPA)
+                        elif projetil.arma == "sniper":
+                            pass   # sniper não é removida ao acertar fantasma
 
-            if fantasma.vivo and fantasma.liberado:
-                if player_obj.hitbox.colliderect(fantasma.hitbox):
-                    player_obj.perder_vida()
-                    if player_obj.vidas <= 0:
-                        estado = "game_over"
+            
+            for explosao in explosoes[:]:
+
+                explosao.atualizar()
+
+                for fantasma in fantasmas:
+                    if fantasma.vivo:
+                        if explosao.rect.colliderect(fantasma.hitbox):
+                            random.choice(death_sounds).play()
+                            fantasma.morrer()
+
+                if explosao.finalizada:
+                    explosoes.remove(explosao)
+
+            
+            for fantasma in fantasmas:
+
+                fantasma.mover(player_obj, mapa, LARGURA, ALTURA_MAPA)
+
+                if fantasma.vivo and fantasma.liberado:
+                    if player_obj.hitbox.colliderect(fantasma.hitbox):
+                        if not player_obj.morrendo:
+                            player_obj.iniciar_morte()
 
     
     if estado == "inicio":
