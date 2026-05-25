@@ -32,12 +32,21 @@ class HUD:
     def __init__(self):
         pygame.font.init()
 
-        self.fonte_titulo  = pygame.font.SysFont("impact", 100, bold=True)
+        self.fonte_titulo  = pygame.font.SysFont("arialblack", 78, bold=True)
         self.fonte_sub     = pygame.font.SysFont("impact",  38)
         self.fonte_ui      = pygame.font.SysFont("consolas", 30, bold=True)
         self.fonte_label   = pygame.font.SysFont("consolas", 18)
+        self.fonte_controle= pygame.font.SysFont("consolas", 24, bold=True)
         self.fonte_grande  = pygame.font.SysFont("impact",  80, bold=True)
         self.fonte_media   = pygame.font.SysFont("consolas", 34, bold=True)
+
+    def desenhar_texto_contornado(self, tela, fonte, texto, cor, contorno, centro):
+        for dx, dy in [(-2, 0), (2, 0), (0, -2), (0, 2), (-2, -2), (2, 2)]:
+            sombra = fonte.render(texto, True, contorno)
+            tela.blit(sombra, sombra.get_rect(center=(centro[0] + dx, centro[1] + dy)))
+
+        texto_render = fonte.render(texto, True, cor)
+        tela.blit(texto_render, texto_render.get_rect(center=centro))
 
     # ------------------------------------------------------------------ tela de início
 
@@ -55,15 +64,20 @@ class HUD:
 
         # Sombra do título
         centro_y = (ALTURA_MAPA + ALTURA_UI) // 2 - 100
-        sombra = self.fonte_titulo.render("PAK47-MAN", True, (100, 0, 0))
-        tela.blit(sombra, sombra.get_rect(center=(LARGURA // 2 + 5, centro_y + 5)))
+        titulo_texto = "PAK 47-MAN"
 
         # Título
-        titulo = self.fonte_titulo.render("PAK47-MAN", True, AMARELO)
-        tela.blit(titulo, titulo.get_rect(center=(LARGURA // 2, centro_y)))
+        self.desenhar_texto_contornado(
+            tela,
+            self.fonte_titulo,
+            titulo_texto,
+            AMARELO,
+            (90, 0, 0),
+            (LARGURA // 2, centro_y)
+        )
 
         # Traço vermelho embaixo do título
-        larg_titulo = titulo.get_width()
+        larg_titulo = self.fonte_titulo.size(titulo_texto)[0]
         pygame.draw.rect(
             tela, VERMELHO,
             (LARGURA // 2 - larg_titulo // 2, centro_y + 58, larg_titulo, 5)
@@ -71,21 +85,40 @@ class HUD:
 
         # Instrução piscante
         if (pygame.time.get_ticks() // 500) % 2 == 0:
-            pressione = self.fonte_sub.render("PRESSIONE  ENTER  PARA  JOGAR", True, BRANCO)
-            tela.blit(pressione, pressione.get_rect(center=(LARGURA // 2, centro_y + 110)))
+            self.desenhar_texto_contornado(
+                tela,
+                self.fonte_sub,
+                "PRESSIONE ENTER PARA JOGAR",
+                BRANCO,
+                (0, 0, 0),
+                (LARGURA // 2, centro_y + 110)
+            )
 
         # Tabela de controles
+        caixa = pygame.Rect(0, 0, 420, 110)
+        caixa.center = (LARGURA // 2, centro_y + 205)
+        pygame.draw.rect(tela, (5, 5, 18), caixa)
+        pygame.draw.rect(tela, AZUL_CL, caixa, 2)
+
         controles = [
             ("MOVER",    "SETAS DO TECLADO"),
             ("ATIRAR",   "Z"),
         ]
-        y_ctrl = centro_y + 185
+        y_ctrl = caixa.y + 34
         for acao, tecla in controles:
-            s_acao  = self.fonte_label.render(acao,  True, CINZA)
-            s_tecla = self.fonte_label.render(tecla, True, AMARELO)
-            tela.blit(s_acao,  s_acao.get_rect( right=LARGURA // 2 - 12, centery=y_ctrl))
-            tela.blit(s_tecla, s_tecla.get_rect(left =LARGURA // 2 + 12, centery=y_ctrl))
-            y_ctrl += 30
+            s_acao  = self.fonte_controle.render(acao,  True, BRANCO)
+            s_tecla = self.fonte_controle.render(tecla, True, AMARELO)
+
+            espaco = 24
+            largura_linha = s_acao.get_width() + espaco + s_tecla.get_width()
+            inicio_x = LARGURA // 2 - largura_linha // 2
+
+            tela.blit(s_acao, s_acao.get_rect(left=inicio_x, centery=y_ctrl))
+            tela.blit(
+                s_tecla,
+                s_tecla.get_rect(left=inicio_x + s_acao.get_width() + espaco, centery=y_ctrl)
+            )
+            y_ctrl += 42
 
     # ------------------------------------------------------------------ tela de game over
 
