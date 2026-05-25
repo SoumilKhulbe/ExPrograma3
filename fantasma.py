@@ -417,10 +417,3 @@ class Fantasma:
         sprite = self.sprites[self.tipo][self.frame]
 
         tela.blit(sprite, (self.x, self.y))
-
-        pygame.draw.rect(
-            tela,
-            (255, 0, 0),
-            self.hitbox,
-            2
-        )
