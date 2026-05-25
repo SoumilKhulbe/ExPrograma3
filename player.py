@@ -90,6 +90,8 @@ class player:
 
         self.pontos = 0
 
+        self.vidas = 3
+
         self.sprites = [
 
             pygame.image.load(
@@ -103,6 +105,7 @@ class player:
             pygame.image.load(
                 'assets/PacManAssets-PacMan_0_2.png'
             )
+            
         ]
 
     def alinhado_no_tile(self):
@@ -252,6 +255,18 @@ class player:
             self.sons_tiro[self.arma].play()
 
             self.arma = None
+    def perder_vida(self):
+
+        self.vidas -= 1
+
+        self.x = 32 * 14
+        self.y = 32 * 16
+
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.hitbox.x = self.x + 6
+        self.hitbox.y = self.y + 6
 
     def desenhar(self, tela):
 

@@ -203,7 +203,9 @@ while rodando:
 
             if fantasma.vivo and fantasma.liberado:
                 if player_obj.hitbox.colliderect(fantasma.hitbox):
-                    estado = "game_over"
+                    player_obj.perder_vida()
+                    if player_obj.vidas <= 0:
+                        estado = "game_over"
 
     
     if estado == "inicio":
@@ -226,7 +228,12 @@ while rodando:
         player_obj.desenhar(TELA)
 
         
-        hud.desenhar_ui(TELA, player_obj.pontos, player_obj.arma)
+        hud.desenhar_ui(
+            TELA,
+            player_obj.pontos,
+            player_obj.arma,
+            player_obj.vidas
+        )
 
         
         if estado == "game_over":

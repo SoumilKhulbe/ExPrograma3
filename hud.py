@@ -121,7 +121,7 @@ class HUD:
 
     # ------------------------------------------------------------------ faixa inferior (em jogo)
 
-    def desenhar_ui(self, tela, pontos, arma):
+    def desenhar_ui(self, tela, pontos, arma, vidas):
         """
         Desenha a faixa de UI na parte de baixo da tela (abaixo do mapa).
         Deve ser chamada por último no bloco de desenho, depois de tudo.
@@ -140,13 +140,39 @@ class HUD:
         tela.blit(label_pts, (28, base_y + 14))
         tela.blit(valor_pts, (28, base_y + 36))
 
-        # Divisor central
+        # Divisores
         pygame.draw.line(
             tela, CINZA_ESC,
-            (LARGURA // 2, base_y + 12),
-            (LARGURA // 2, base_y + ALTURA_UI - 12),
+            (LARGURA // 3, base_y + 12),
+            (LARGURA // 3, base_y + ALTURA_UI - 12),
             2
         )
+
+        pygame.draw.line(
+            tela, CINZA_ESC,
+            (2 * LARGURA // 3, base_y + 12),
+            (2 * LARGURA // 3, base_y + ALTURA_UI - 12),
+            2
+        )
+
+        # --- VIDAS (centro) ---
+        label_vidas = self.fonte_label.render("VIDAS", True, CINZA)
+        tela.blit(label_vidas, (LARGURA // 3 + 28, base_y + 14))
+
+        for i in range(max(0, vidas)):
+            centro_x = LARGURA // 3 + 44 + i * 38
+            centro_y = base_y + 58
+
+            pygame.draw.circle(tela, AMARELO, (centro_x, centro_y), 13)
+            pygame.draw.polygon(
+                tela,
+                (20, 20, 20),
+                [
+                    (centro_x, centro_y),
+                    (centro_x + 13, centro_y - 7),
+                    (centro_x + 13, centro_y + 7),
+                ]
+            )
 
         # --- ARMA (lado direito) ---
         cor_arma  = CORES_ARMA.get(arma, CINZA)
@@ -155,8 +181,8 @@ class HUD:
         label_arma = self.fonte_label.render("ARMA EQUIPADA", True, CINZA)
         valor_arma = self.fonte_ui.render(nome_arma, True, cor_arma)
 
-        tela.blit(label_arma, (LARGURA // 2 + 28, base_y + 14))
-        tela.blit(valor_arma, (LARGURA // 2 + 28, base_y + 36))
+        tela.blit(label_arma, (2 * LARGURA // 3 + 28, base_y + 14))
+        tela.blit(valor_arma, (2 * LARGURA // 3 + 28, base_y + 36))
 
         # Indicador visual: bolinha da cor da arma
         if arma is not None:
