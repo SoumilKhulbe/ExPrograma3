@@ -75,8 +75,9 @@ def iniciar_jogo():
         Fantasma(16 * 32, 10 * 32,  "clyde", 16 * 32, 10 * 32, 12000),
     ]
 
-
-
+menu_song = pygame.mixer.Sound("assets/som/Theme 03.wav")
+menu_song.set_volume(1.5)
+menu_song.play(-1)  # toca a música do menu em loop
 estado = "inicio"
 
 iniciar_jogo()
@@ -99,6 +100,7 @@ while rodando:
             if event.key == pygame.K_RETURN:
                 if estado == "inicio":
                     estado = "jogando"
+                    menu_song.stop()
                     game_over_sound.stop()  # para o som de game over caso esteja tocando
                     victory_sound.stop()
                     bgm.play(-1)  # toca a música de fundo em loop
